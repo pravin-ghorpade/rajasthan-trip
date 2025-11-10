@@ -41,7 +41,7 @@
           "name": "Rajasthan Palace Heritage Hotel",
           "link": "https://maps.app.goo.gl/eDhmqKVUg4npD7Zf7",
           "price2": 6300,
-          "price3": 8400.0,
+          "price3": 8400,
           "image": "https://source.unsplash.com/800x600/?Jaipur+Rajasthan+Palace+Heritage+Hotel+hotel+rajasthan",
           "notes": ""
         }
@@ -57,7 +57,7 @@
           "name": "Rajasthan Palace Heritage Hotel",
           "link": "https://maps.app.goo.gl/eDhmqKVUg4npD7Zf7",
           "price2": 6300,
-          "price3": 8400.0,
+          "price3": 8400,
           "image": "https://source.unsplash.com/800x600/?Jaipur+Rajasthan+Palace+Heritage+Hotel+hotel+rajasthan",
           "notes": ""
         }
@@ -73,7 +73,7 @@
           "name": "Jodhpur hotel",
           "link": "https://maps.app.goo.gl/eDhmqKVUg4npD7Zf7",
           "price2": 6300,
-          "price3": 8400.0,
+          "price3": 8400,
           "image": "https://source.unsplash.com/800x600/?Jaipur+Rajasthan+Palace+Heritage+Hotel+hotel+rajasthan",
           "notes": ""
         },
@@ -82,7 +82,7 @@
           "name": "Rajasthan Palace Heritage Hotel",
           "link": "https://maps.app.goo.gl/eDhmqKVUg4npD7Zf7",
           "price2": 6300,
-          "price3": 8400.0,
+          "price3": 8400,
           "image": "https://source.unsplash.com/800x600/?Jaipur+Rajasthan+Palace+Heritage+Hotel+hotel+rajasthan",
           "notes": ""
         }
@@ -98,7 +98,7 @@
           "name": "Rajasthan Palace Heritage Hotel",
           "link": "https://maps.app.goo.gl/eDhmqKVUg4npD7Zf7",
           "price2": 6300,
-          "price3": 8400.0,
+          "price3": 8400,
           "image": "https://source.unsplash.com/800x600/?Jaipur+Rajasthan+Palace+Heritage+Hotel+hotel+rajasthan",
           "notes": ""
         },
@@ -107,7 +107,7 @@
           "name": "Rajasthan Palace Heritage Hotel",
           "link": "https://maps.app.goo.gl/eDhmqKVUg4npD7Zf7",
           "price2": 6300,
-          "price3": 8400.0,
+          "price3": 8400,
           "image": "https://source.unsplash.com/800x600/?Jaipur+Rajasthan+Palace+Heritage+Hotel+hotel+rajasthan",
           "notes": ""
         }
@@ -123,7 +123,7 @@
           "name": "Sunrise Desert Resort",
           "link": "https://maps.app.goo.gl/sFj5HyqZ5AJD2gEB6",
           "price2": 11000,
-          "price3": 12500.0,
+          "price3": 12500,
           "image": "https://source.unsplash.com/800x600/?Jaisalmer+%28Camp%29+Sunrise+Desert+Resort+hotel+rajasthan",
           "notes": ""
         }
@@ -139,7 +139,7 @@
           "name": "WelcomHeritage Mohangarh Fort",
           "link": "https://maps.app.goo.gl/pqGPogXqPVLXswD5A",
           "price2": 11210,
-          "price3": 13676.0,
+          "price3": 13676,
           "image": "https://source.unsplash.com/800x600/?Jaisalmer+%28City%29+WelcomHeritage+Mohangarh+Fort%0A%0AHotel+Grand+Khalifa%0A%0Ahttps%3A%2F%2Fexpe.app.link%2F3wliKSevaYb+hotel+rajasthan",
           "notes": ""
         },
@@ -148,20 +148,19 @@
           "name": "Hotel Grand Khalifa",
           "link": null,
           "price2": 112107100,
-          "price3": 13676.0,
+          "price3": 13676,
           "image": "https://source.unsplash.com/800x600/?Jaisalmer+%28City%29+WelcomHeritage+Mohangarh+Fort%0A%0AHotel+Grand+Khalifa%0A%0Ahttps%3A%2F%2Fexpe.app.link%2F3wliKSevaYb+hotel+rajasthan",
           "notes": ""
         },
         {
-          "id": "hotel-durjay-garh",
-          "name": "Hotel Durjay Garh",
-          "link": "https://expe.app.link/3wliKSevaYb",
-          "price2": 7100,
-          "price3": 0,
-          "image": "https://source.unsplash.com/800x600/?Jaisalmer+%28City%29+WelcomHeritage+Mohangarh+Fort%0A%0AHotel+Grand+Khalifa%0A%0Ahttps%3A%2F%2Fexpe.app.link%2F3wliKSevaYb+hotel+rajasthan",
+          "id": "hotel_1762749739274_lcwtqtit7",
+          "name": "Test h",
+          "price2": 5000,
+          "price3": 5000,
+          "image": "5000",
+          "link": "5000",
           "notes": ""
         }
-
       ]
     }
   ]
