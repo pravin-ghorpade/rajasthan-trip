@@ -1,0 +1,168 @@
+{
+  "tripTitle": "Rajasthan Trip — Dec 14–21, 2025",
+  "ctaNote": "Rate or rank stays per city. Copy the link to share your picks with the group, or export CSV.",
+  "currency": "₹",
+  "googleForm": {
+    "enabled": true,
+    "formAction": "https://docs.google.com/forms/d/e/REPLACE_WITH_YOUR_FORM_ID/formResponse",
+    "entries": {
+      "name": "entry.REPLACE_NAME_ID",
+      "city": "entry.REPLACE_CITY_ID",
+      "hotel": "entry.REPLACE_HOTEL_ID",
+      "score": "entry.REPLACE_SCORE_ID",
+      "occupancy": "entry.REPLACE_OCCUPANCY_ID",
+      "notes": "entry.REPLACE_NOTES_ID"
+    }
+  },
+  "cities": [
+    {
+      "id": "ranthambhore",
+      "name": "Ranthambhore",
+      "dates": "Dec 14–Dec 15",
+      "hotels": [
+        {
+          "id": "tiger-moon-resort-ranthambhore",
+          "name": "Tiger Moon Resort Ranthambhore",
+          "link": "https://share.google/6ZETg9tSR6uDEMUGX",
+          "price2": 3300,
+          "price3": 3500,
+          "image": "https://source.unsplash.com/800x600/?Ranthambhore+Tiger+Moon+Resort+Ranthambhore+hotel+rajasthan",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "jaipur1",
+      "name": "Jaipur",
+      "dates": "Dec 15–Dec 16",
+      "hotels": [
+        {
+          "id": "rajasthan-palace-heritage-hotel1",
+          "name": "Rajasthan Palace Heritage Hotel",
+          "link": "https://maps.app.goo.gl/eDhmqKVUg4npD7Zf7",
+          "price2": 6300,
+          "price3": 8400.0,
+          "image": "https://source.unsplash.com/800x600/?Jaipur+Rajasthan+Palace+Heritage+Hotel+hotel+rajasthan",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "jaipur2",
+      "name": "Jaipur",
+      "dates": "Dec 16–Dec 17",
+      "hotels": [
+        {
+          "id": "rajasthan-palace-heritage-hotel2",
+          "name": "Rajasthan Palace Heritage Hotel",
+          "link": "https://maps.app.goo.gl/eDhmqKVUg4npD7Zf7",
+          "price2": 6300,
+          "price3": 8400.0,
+          "image": "https://source.unsplash.com/800x600/?Jaipur+Rajasthan+Palace+Heritage+Hotel+hotel+rajasthan",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "Jodhpur1",
+      "name": "Jodhpur",
+      "dates": "Dec 17–Dec 18",
+      "hotels": [
+        {
+          "id": "Jodhpur-hotel-1",
+          "name": "Jodhpur hotel",
+          "link": "https://maps.app.goo.gl/eDhmqKVUg4npD7Zf7",
+          "price2": 6300,
+          "price3": 8400.0,
+          "image": "https://source.unsplash.com/800x600/?Jaipur+Rajasthan+Palace+Heritage+Hotel+hotel+rajasthan",
+          "notes": ""
+        },
+        {
+          "id": "Jodhpur-hotel-2",
+          "name": "Rajasthan Palace Heritage Hotel",
+          "link": "https://maps.app.goo.gl/eDhmqKVUg4npD7Zf7",
+          "price2": 6300,
+          "price3": 8400.0,
+          "image": "https://source.unsplash.com/800x600/?Jaipur+Rajasthan+Palace+Heritage+Hotel+hotel+rajasthan",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "Jodhpur2",
+      "name": "Jodhpur",
+      "dates": "Dec 18–Dec 19",
+      "hotels": [
+        {
+          "id": "rajasthan-palace-heritage-hotel",
+          "name": "Rajasthan Palace Heritage Hotel",
+          "link": "https://maps.app.goo.gl/eDhmqKVUg4npD7Zf7",
+          "price2": 6300,
+          "price3": 8400.0,
+          "image": "https://source.unsplash.com/800x600/?Jaipur+Rajasthan+Palace+Heritage+Hotel+hotel+rajasthan",
+          "notes": ""
+        },
+        {
+          "id": "rajasthan-palace-heritage-hotel",
+          "name": "Rajasthan Palace Heritage Hotel",
+          "link": "https://maps.app.goo.gl/eDhmqKVUg4npD7Zf7",
+          "price2": 6300,
+          "price3": 8400.0,
+          "image": "https://source.unsplash.com/800x600/?Jaipur+Rajasthan+Palace+Heritage+Hotel+hotel+rajasthan",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "jaisalmer-camp",
+      "name": "Jaisalmer Camp",
+      "dates": "Dec 19–Dec 20",
+      "hotels": [
+        {
+          "id": "sunrise-desert-resort",
+          "name": "Sunrise Desert Resort",
+          "link": "https://maps.app.goo.gl/sFj5HyqZ5AJD2gEB6",
+          "price2": 11000,
+          "price3": 12500.0,
+          "image": "https://source.unsplash.com/800x600/?Jaisalmer+%28Camp%29+Sunrise+Desert+Resort+hotel+rajasthan",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "jaisalmer-city",
+      "name": "Jaisalmer City",
+      "dates": "Dec 20–Dec 21",
+      "hotels": [
+        {
+          "id": "welcomheritage-mohangarh-fort",
+          "name": "WelcomHeritage Mohangarh Fort",
+          "link": "https://maps.app.goo.gl/pqGPogXqPVLXswD5A",
+          "price2": 11210,
+          "price3": 13676.0,
+          "image": "https://source.unsplash.com/800x600/?Jaisalmer+%28City%29+WelcomHeritage+Mohangarh+Fort%0A%0AHotel+Grand+Khalifa%0A%0Ahttps%3A%2F%2Fexpe.app.link%2F3wliKSevaYb+hotel+rajasthan",
+          "notes": ""
+        },
+        {
+          "id": "hotel-grand-khalifa",
+          "name": "Hotel Grand Khalifa",
+          "link": null,
+          "price2": 112107100,
+          "price3": 13676.0,
+          "image": "https://source.unsplash.com/800x600/?Jaisalmer+%28City%29+WelcomHeritage+Mohangarh+Fort%0A%0AHotel+Grand+Khalifa%0A%0Ahttps%3A%2F%2Fexpe.app.link%2F3wliKSevaYb+hotel+rajasthan",
+          "notes": ""
+        },
+        {
+          "id": "hotel-durjay-garh",
+          "name": "Hotel Durjay Garh",
+          "link": "https://expe.app.link/3wliKSevaYb",
+          "price2": 7100,
+          "price3": 0,
+          "image": "https://source.unsplash.com/800x600/?Jaisalmer+%28City%29+WelcomHeritage+Mohangarh+Fort%0A%0AHotel+Grand+Khalifa%0A%0Ahttps%3A%2F%2Fexpe.app.link%2F3wliKSevaYb+hotel+rajasthan",
+          "notes": ""
+        }
+
+      ]
+    }
+  ]
+}
