@@ -1,26 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
-
-const DATA_FILE_PATH = path.join(process.cwd(), 'src/data/rajasthan_data_with_images_20251110_024141.json');
-
-// Helper to read data
-function readData() {
-  const fileContent = fs.readFileSync(DATA_FILE_PATH, 'utf-8');
-  return JSON.parse(fileContent);
-}
-
-// Helper to write data
-function writeData(data: any) {
-  fs.writeFileSync(DATA_FILE_PATH, JSON.stringify(data, null, 2), 'utf-8');
-}
+import { sql, getAllData } from '@/db/client';
 
 // GET - Fetch all hotels
 export async function GET() {
   try {
-    const data = readData();
+    const data = await getAllData();
     return NextResponse.json({ success: true, data });
   } catch (error) {
+    console.error('Error fetching hotels:', error);
     return NextResponse.json({ success: false, error: 'Failed to fetch hotels' }, { status: 500 });
   }
 }
@@ -35,16 +22,32 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Missing required fields' }, { status: 400 });
     }
 
-    const data = readData();
-    const city = data.cities.find((c: any) => c.id === cityId);
-
-    if (!city) {
+    // Check if city exists
+    const cityCheck = await sql`SELECT id FROM cities WHERE id = ${cityId}`;
+    if (cityCheck.rows.length === 0) {
       return NextResponse.json({ success: false, error: 'City not found' }, { status: 404 });
     }
 
     // Generate unique ID for hotel
+    const newHotelId = `hotel_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+    // Insert new hotel
+    await sql`
+      INSERT INTO hotels (id, city_id, name, price2, price3, image, link, notes)
+      VALUES (
+        ${newHotelId},
+        ${cityId},
+        ${hotel.name},
+        ${hotel.price2 || null},
+        ${hotel.price3 || null},
+        ${hotel.image || null},
+        ${hotel.link || null},
+        ${hotel.notes || null}
+      )
+    `;
+
     const newHotel = {
-      id: `hotel_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      id: newHotelId,
       name: hotel.name,
       price2: hotel.price2 || null,
       price3: hotel.price3 || null,
@@ -52,9 +55,6 @@ export async function POST(request: NextRequest) {
       link: hotel.link || '',
       notes: hotel.notes || '',
     };
-
-    city.hotels.push(newHotel);
-    writeData(data);
 
     return NextResponse.json({ success: true, data: newHotel });
   } catch (error) {
@@ -73,29 +73,48 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Missing required fields' }, { status: 400 });
     }
 
-    const data = readData();
-    const city = data.cities.find((c: any) => c.id === cityId);
-
-    if (!city) {
+    // Check if city exists
+    const cityCheck = await sql`SELECT id FROM cities WHERE id = ${cityId}`;
+    if (cityCheck.rows.length === 0) {
       return NextResponse.json({ success: false, error: 'City not found' }, { status: 404 });
     }
 
-    const hotelIndex = city.hotels.findIndex((h: any) => h.id === hotelId);
-
-    if (hotelIndex === -1) {
+    // Check if hotel exists
+    const hotelCheck = await sql`SELECT id FROM hotels WHERE id = ${hotelId} AND city_id = ${cityId}`;
+    if (hotelCheck.rows.length === 0) {
       return NextResponse.json({ success: false, error: 'Hotel not found' }, { status: 404 });
     }
 
-    // Update hotel fields
-    city.hotels[hotelIndex] = {
-      ...city.hotels[hotelIndex],
-      ...updates,
-      id: hotelId, // Ensure ID doesn't change
-    };
+    // Update hotel
+    await sql`
+      UPDATE hotels
+      SET 
+        name = ${updates.name},
+        price2 = ${updates.price2 || null},
+        price3 = ${updates.price3 || null},
+        image = ${updates.image || null},
+        link = ${updates.link || null},
+        notes = ${updates.notes || null},
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = ${hotelId} AND city_id = ${cityId}
+    `;
 
-    writeData(data);
+    // Fetch updated hotel
+    const result = await sql`SELECT * FROM hotels WHERE id = ${hotelId}`;
+    const updatedHotel = result.rows[0];
 
-    return NextResponse.json({ success: true, data: city.hotels[hotelIndex] });
+    return NextResponse.json({ 
+      success: true, 
+      data: {
+        id: updatedHotel.id,
+        name: updatedHotel.name,
+        price2: updatedHotel.price2,
+        price3: updatedHotel.price3,
+        image: updatedHotel.image || '',
+        link: updatedHotel.link || '',
+        notes: updatedHotel.notes || '',
+      }
+    });
   } catch (error) {
     console.error('Error updating hotel:', error);
     return NextResponse.json({ success: false, error: 'Failed to update hotel' }, { status: 500 });
@@ -113,23 +132,35 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Missing required parameters' }, { status: 400 });
     }
 
-    const data = readData();
-    const city = data.cities.find((c: any) => c.id === cityId);
-
-    if (!city) {
+    // Check if city exists
+    const cityCheck = await sql`SELECT id FROM cities WHERE id = ${cityId}`;
+    if (cityCheck.rows.length === 0) {
       return NextResponse.json({ success: false, error: 'City not found' }, { status: 404 });
     }
 
-    const hotelIndex = city.hotels.findIndex((h: any) => h.id === hotelId);
-
-    if (hotelIndex === -1) {
+    // Check if hotel exists and get it before deleting
+    const hotelResult = await sql`SELECT * FROM hotels WHERE id = ${hotelId} AND city_id = ${cityId}`;
+    if (hotelResult.rows.length === 0) {
       return NextResponse.json({ success: false, error: 'Hotel not found' }, { status: 404 });
     }
 
-    const deletedHotel = city.hotels.splice(hotelIndex, 1)[0];
-    writeData(data);
+    const deletedHotel = hotelResult.rows[0];
 
-    return NextResponse.json({ success: true, data: deletedHotel });
+    // Delete the hotel
+    await sql`DELETE FROM hotels WHERE id = ${hotelId} AND city_id = ${cityId}`;
+
+    return NextResponse.json({ 
+      success: true, 
+      data: {
+        id: deletedHotel.id,
+        name: deletedHotel.name,
+        price2: deletedHotel.price2,
+        price3: deletedHotel.price3,
+        image: deletedHotel.image || '',
+        link: deletedHotel.link || '',
+        notes: deletedHotel.notes || '',
+      }
+    });
   } catch (error) {
     console.error('Error deleting hotel:', error);
     return NextResponse.json({ success: false, error: 'Failed to delete hotel' }, { status: 500 });

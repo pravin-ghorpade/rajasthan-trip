@@ -8,11 +8,9 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { ExternalLink, Heart, Star, Send, TrendingUp, Users, ArrowUpDown, Plus, Edit, Trash2, Save, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import DATA_RAW from "@/data/rajasthan_data_with_images_20251110_024141.json";
 
 // ---------- utilities ----------
-const DATA = DATA_RAW as any;
-const fmt = (n: number | null) => (typeof n === "number" ? `${DATA.currency}${n.toLocaleString()}` : "—");
+const formatPrice = (n: number | null, currency: string = '₹') => (typeof n === "number" ? `${currency}${n.toLocaleString()}` : "—");
 
 const StarRating = ({ value, onChange }: { value: number; onChange: (v: number)=>void }) => {
   const [hover, setHover] = useState(0);
@@ -77,14 +75,17 @@ function useQueryParamScores() {
   return [scores, setScores] as const;
 }
 
-const HotelCard = ({ city, hotel, occupancy, score, setScore, setOccupancy }:{
+const HotelCard = ({ city, hotel, occupancy, score, setScore, setOccupancy, currency }:{
   city:any; hotel:any; occupancy:number; score:number; 
-  setScore:(v:number)=>void; setOccupancy:(v:2|3)=>void;
+  setScore:(v:number)=>void; setOccupancy:(v:2|3)=>void; currency:string;
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [showGooglePreview, setShowGooglePreview] = useState(false);
   const [imageError, setImageError] = useState(false);
   const hasRating = score > 0;
+
+  // Helper to format prices
+  const fmt = (n: number | null) => formatPrice(n, currency);
 
   // Generate Google search URL for hotel
   const googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(hotel.name + ' ' + city.name + ' Rajasthan')}`;
@@ -343,14 +344,20 @@ export default function Page() {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   
   // Admin state
-  const [hotelData, setHotelData] = useState<any>(DATA);
-  const [cityId, setCityId] = useState(DATA.cities[0].id as string);
-  const [isLoadingHotels, setIsLoadingHotels] = useState(false);
+  const [hotelData, setHotelData] = useState<any>({ 
+    tripTitle: 'Rajasthan Trip — Dec 14–21, 2025',
+    ctaNote: 'Rate or rank stays per city.',
+    currency: '₹',
+    cities: [],
+    googleForm: { enabled: false }
+  });
+  const [cityId, setCityId] = useState('');
+  const [isLoadingHotels, setIsLoadingHotels] = useState(true);
   const [editingHotelId, setEditingHotelId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<any>({});
   const [showAddForm, setShowAddForm] = useState(false);
   const [addForm, setAddForm] = useState({
-    cityId: DATA.cities[0].id,
+    cityId: '',
     name: '',
     price2: '',
     price3: '',
@@ -361,8 +368,11 @@ export default function Page() {
 
   const activeCity = useMemo(()=>hotelData.cities.find((c:any)=>c.id===cityId), [cityId, hotelData]);
   const filteredHotels = useMemo(()=>{
-    return activeCity.hotels;
+    return activeCity?.hotels || [];
   }, [activeCity]);
+
+  // Helper to format prices with currency
+  const fmt = (n: number | null) => formatPrice(n, hotelData.currency);
 
   const getScore = (c:any, hid:string)=> (scores?.[c.id]?.[hid] || 0);
   const setScore = (c:any, hid:string, v:number)=>{
@@ -469,6 +479,11 @@ export default function Page() {
       const data = await response.json();
       if (data.success) {
         setHotelData(data.data);
+        // Set initial cityId and addForm.cityId if not set
+        if (!cityId && data.data.cities.length > 0) {
+          setCityId(data.data.cities[0].id);
+          setAddForm(prev => ({ ...prev, cityId: data.data.cities[0].id }));
+        }
       }
     } catch (error) {
       console.error('Error fetching hotels:', error);
@@ -592,12 +607,15 @@ export default function Page() {
     });
   };
 
+  // Load hotels on mount
+  useEffect(() => {
+    fetchHotels();
+  }, []);
+
   // Load votes on mount and when switching to results tab
   useEffect(() => {
     if (activeTab === 'results') {
       fetchVotes();
-    } else if (activeTab === 'admin') {
-      fetchHotels();
     }
   }, [activeTab, fetchVotes]);
 
@@ -1406,6 +1424,7 @@ export default function Page() {
                       score={getScore(c,h.id)} 
                       setScore={(v)=>setScore(c,h.id,v)}
                       setOccupancy={setOccupancy}
+                      currency={hotelData.currency}
                     />
                   </div>
                 ))}
