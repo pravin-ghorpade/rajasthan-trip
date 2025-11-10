@@ -1,7 +1,11 @@
 // Seed script to populate database with existing JSON data
+import dotenv from 'dotenv';
 import { sql } from '@vercel/postgres';
 import fs from 'fs';
 import path from 'path';
+
+// Load environment variables from .env.local
+dotenv.config({ path: '.env.local' });
 
 async function seed() {
   console.log('🌱 Starting database seed...');

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useEffect, useCallback } from "react";
+import { useMemo, useState, useEffect, useCallback, memo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -332,6 +332,160 @@ const HotelCard = ({ city, hotel, occupancy, score, setScore, setOccupancy, curr
   );
 };
 
+// Memoized Add Hotel Form Component
+const AddHotelForm = memo(({ 
+  cities, 
+  currency, 
+  onSubmit, 
+  onCancel 
+}: { 
+  cities: any[]; 
+  currency: string;
+  onSubmit: (form: any) => void; 
+  onCancel: () => void;
+}) => {
+  const [form, setForm] = useState({
+    cityId: cities[0]?.id || '',
+    name: '',
+    price2: '',
+    price3: '',
+    image: '',
+    link: '',
+    notes: '',
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit(form);
+  };
+
+  return (
+    <motion.div
+      key="add-form"
+      initial={{ opacity: 0, height: 0, scale: 0.95 }}
+      animate={{ opacity: 1, height: 'auto', scale: 1 }}
+      exit={{ opacity: 0, height: 0, scale: 0.95 }}
+      transition={{ duration: 0.3 }}
+    >
+      <Card className="p-8 bg-gradient-to-br from-blue-50 to-cyan-50 border-2 border-blue-300 shadow-2xl rounded-3xl">
+        <h3 className="text-2xl font-black mb-6 text-gray-900 flex items-center gap-2">
+          <span>➕</span>
+          <span>Add New Hotel</span>
+        </h3>
+        <form onSubmit={handleSubmit} autoComplete="off">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="text-sm font-bold text-gray-700 mb-2 block flex items-center gap-2">
+                <span>🏙️</span>
+                <span>City</span>
+              </label>
+              <select
+                value={form.cityId}
+                onChange={(e) => setForm({ ...form, cityId: e.target.value })}
+                className="w-full p-3 border-2 border-gray-300 rounded-2xl font-medium focus:border-blue-400 focus:outline-none bg-white"
+              >
+                {cities.map((c: any) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="text-sm font-bold text-gray-700 mb-2 block flex items-center gap-2">
+                <span>🏨</span>
+                <span>Hotel Name *</span>
+              </label>
+              <Input
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                placeholder="Hotel Raj Palace"
+                autoComplete="off"
+                className="border-2 border-gray-300 focus:border-blue-400 rounded-2xl h-12 font-medium"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-bold text-gray-700 mb-2 block flex items-center gap-2">
+                <span>💰</span>
+                <span>2 Person Price * ({currency})</span>
+              </label>
+              <Input
+                type="number"
+                value={form.price2}
+                onChange={(e) => setForm({ ...form, price2: e.target.value })}
+                placeholder="5000"
+                autoComplete="off"
+                className="border-2 border-gray-300 focus:border-blue-400 rounded-2xl h-12 font-medium"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-bold text-gray-700 mb-2 block flex items-center gap-2">
+                <span>💰</span>
+                <span>3 Person Price * ({currency})</span>
+              </label>
+              <Input
+                type="number"
+                value={form.price3}
+                onChange={(e) => setForm({ ...form, price3: e.target.value })}
+                placeholder="6500"
+                autoComplete="off"
+                className="border-2 border-gray-300 focus:border-blue-400 rounded-2xl h-12 font-medium"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-bold text-gray-700 mb-2 block flex items-center gap-2">
+                <span>📷</span>
+                <span>Image URL</span>
+              </label>
+              <Input
+                value={form.image}
+                onChange={(e) => setForm({ ...form, image: e.target.value })}
+                placeholder="https://..."
+                autoComplete="off"
+                className="border-2 border-gray-300 focus:border-blue-400 rounded-2xl h-12 font-medium"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-bold text-gray-700 mb-2 block flex items-center gap-2">
+                <span>🔗</span>
+                <span>Booking Link</span>
+              </label>
+              <Input
+                value={form.link}
+                onChange={(e) => setForm({ ...form, link: e.target.value })}
+                placeholder="https://..."
+                autoComplete="off"
+                className="border-2 border-gray-300 focus:border-blue-400 rounded-2xl h-12 font-medium"
+              />
+            </div>
+            <div className="md:col-span-2">
+              <label className="text-sm font-bold text-gray-700 mb-2 block flex items-center gap-2">
+                <span>📝</span>
+                <span>Notes</span>
+              </label>
+              <Input
+                value={form.notes}
+                onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                placeholder="Special notes or instructions"
+                autoComplete="off"
+                className="border-2 border-gray-300 focus:border-blue-400 rounded-2xl h-12 font-medium"
+              />
+            </div>
+          </div>
+          <div className="flex gap-3 mt-8">
+            <Button type="submit" className="rounded-2xl flex-1 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold py-6 shadow-lg border-2 border-white/50">
+              <Plus className="mr-2 h-5 w-5" /> Add Hotel
+            </Button>
+            <Button type="button" onClick={onCancel} variant="outline" className="rounded-2xl bg-white hover:bg-red-50 border-2 border-red-300 hover:border-red-400 font-bold py-6 px-8 text-lg">
+              <X className="mr-2 h-5 w-5" /> Cancel
+            </Button>
+          </div>
+        </form>
+      </Card>
+    </motion.div>
+  );
+});
+
+AddHotelForm.displayName = 'AddHotelForm';
+
 export default function Page() {
   const [scores, setScores] = useQueryParamScores();
   const [name, setName] = useState("");
@@ -371,8 +525,8 @@ export default function Page() {
     return activeCity?.hotels || [];
   }, [activeCity]);
 
-  // Helper to format prices with currency
-  const fmt = (n: number | null) => formatPrice(n, hotelData.currency);
+  // Helper to format prices with currency - memoized
+  const fmt = useCallback((n: number | null) => formatPrice(n, hotelData.currency), [hotelData.currency]);
 
   const getScore = (c:any, hid:string)=> (scores?.[c.id]?.[hid] || 0);
   const setScore = (c:any, hid:string, v:number)=>{
@@ -472,17 +626,30 @@ export default function Page() {
   };
 
   // Hotel Management Functions
-  const fetchHotels = async () => {
+  const fetchHotels = useCallback(async () => {
     setIsLoadingHotels(true);
     try {
       const response = await fetch('/api/hotels');
       const data = await response.json();
       if (data.success) {
-        setHotelData(data.data);
+        // Sort cities by date
+        const sortedData = {
+          ...data.data,
+          cities: [...data.data.cities].sort((a: any, b: any) => {
+            // Extract start date from date string (e.g., "Dec 14–Dec 15" -> "Dec 14")
+            const getStartDate = (dateStr: string) => {
+              const startDateStr = dateStr.split('–')[0].trim();
+              return new Date('2025 ' + startDateStr);
+            };
+            return getStartDate(a.dates).getTime() - getStartDate(b.dates).getTime();
+          })
+        };
+        
+        setHotelData(sortedData);
         // Set initial cityId and addForm.cityId if not set
-        if (!cityId && data.data.cities.length > 0) {
-          setCityId(data.data.cities[0].id);
-          setAddForm(prev => ({ ...prev, cityId: data.data.cities[0].id }));
+        if (!cityId && sortedData.cities.length > 0) {
+          setCityId(sortedData.cities[0].id);
+          setAddForm(prev => ({ ...prev, cityId: sortedData.cities[0].id }));
         }
       }
     } catch (error) {
@@ -490,10 +657,12 @@ export default function Page() {
     } finally {
       setIsLoadingHotels(false);
     }
-  };
+  }, [cityId]);
 
-  const addHotel = async () => {
-    if (!addForm.name || !addForm.price2 || !addForm.price3) {
+  const addHotel = async (formData?: any) => {
+    const form = formData || addForm;
+    
+    if (!form.name || !form.price2 || !form.price3) {
       alert('Please fill in hotel name, 2-person price, and 3-person price');
       return;
     }
@@ -503,14 +672,14 @@ export default function Page() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          cityId: addForm.cityId,
+          cityId: form.cityId,
           hotel: {
-            name: addForm.name,
-            price2: parseFloat(addForm.price2) || null,
-            price3: parseFloat(addForm.price3) || null,
-            image: addForm.image,
-            link: addForm.link,
-            notes: addForm.notes,
+            name: form.name,
+            price2: parseFloat(form.price2),
+            price3: parseFloat(form.price3),
+            image: form.image,
+            link: form.link,
+            notes: form.notes,
           },
         }),
       });
@@ -520,7 +689,7 @@ export default function Page() {
         alert('✅ Hotel added successfully!');
         setShowAddForm(false);
         setAddForm({
-          cityId: hotelData.cities[0].id,
+          cityId: hotelData.cities[0]?.id || '',
           name: '',
           price2: '',
           price3: '',
@@ -610,6 +779,7 @@ export default function Page() {
   // Load hotels on mount
   useEffect(() => {
     fetchHotels();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Load votes on mount and when switching to results tab
@@ -941,6 +1111,7 @@ export default function Page() {
         className="flex justify-center"
       >
         <Button 
+          type="button"
           onClick={() => setShowAddForm(!showAddForm)}
           size="lg"
           className={`rounded-3xl px-8 py-6 text-lg font-black shadow-xl border-2 transition-all ${
@@ -957,127 +1128,12 @@ export default function Page() {
       {/* Add Hotel Form */}
       <AnimatePresence mode="wait">
         {showAddForm && (
-          <motion.div
-            key="add-form"
-            initial={{ opacity: 0, height: 0, scale: 0.95 }}
-            animate={{ opacity: 1, height: 'auto', scale: 1 }}
-            exit={{ opacity: 0, height: 0, scale: 0.95 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Card className="p-8 bg-gradient-to-br from-blue-50 to-cyan-50 border-2 border-blue-300 shadow-2xl rounded-3xl">
-              <h3 className="text-2xl font-black mb-6 text-gray-900 flex items-center gap-2">
-                <span>➕</span>
-                <span>Add New Hotel</span>
-              </h3>
-              <form onSubmit={(e) => { e.preventDefault(); addHotel(); }} autoComplete="off">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="text-sm font-bold text-gray-700 mb-2 block flex items-center gap-2">
-                      <span>🏙️</span>
-                      <span>City</span>
-                    </label>
-                    <select
-                      value={addForm.cityId}
-                      onChange={(e) => setAddForm({ ...addForm, cityId: e.target.value })}
-                      className="w-full p-3 border-2 border-gray-300 rounded-2xl font-medium focus:border-blue-400 focus:outline-none bg-white"
-                    >
-                      {hotelData.cities.map((c: any) => (
-                        <option key={c.id} value={c.id}>{c.name}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-sm font-bold text-gray-700 mb-2 block flex items-center gap-2">
-                      <span>🏨</span>
-                      <span>Hotel Name *</span>
-                    </label>
-                    <Input
-                      value={addForm.name}
-                      onChange={(e) => setAddForm({ ...addForm, name: e.target.value })}
-                      placeholder="Hotel Raj Palace"
-                      autoComplete="off"
-                      className="border-2 border-gray-300 focus:border-blue-400 rounded-2xl h-12 font-medium"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-bold text-gray-700 mb-2 block flex items-center gap-2">
-                      <span>💰</span>
-                      <span>2 Person Price * ({hotelData.currency})</span>
-                    </label>
-                    <Input
-                      type="number"
-                      value={addForm.price2}
-                      onChange={(e) => setAddForm({ ...addForm, price2: e.target.value })}
-                      placeholder="5000"
-                      autoComplete="off"
-                      className="border-2 border-gray-300 focus:border-blue-400 rounded-2xl h-12 font-medium"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-bold text-gray-700 mb-2 block flex items-center gap-2">
-                      <span>💰</span>
-                      <span>3 Person Price * ({hotelData.currency})</span>
-                    </label>
-                    <Input
-                      type="number"
-                      value={addForm.price3}
-                      onChange={(e) => setAddForm({ ...addForm, price3: e.target.value })}
-                      placeholder="6500"
-                      autoComplete="off"
-                      className="border-2 border-gray-300 focus:border-blue-400 rounded-2xl h-12 font-medium"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-bold text-gray-700 mb-2 block flex items-center gap-2">
-                      <span>📷</span>
-                      <span>Image URL</span>
-                    </label>
-                    <Input
-                      value={addForm.image}
-                      onChange={(e) => setAddForm({ ...addForm, image: e.target.value })}
-                      placeholder="https://..."
-                      autoComplete="off"
-                      className="border-2 border-gray-300 focus:border-blue-400 rounded-2xl h-12 font-medium"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-bold text-gray-700 mb-2 block flex items-center gap-2">
-                      <span>🔗</span>
-                      <span>Booking Link</span>
-                    </label>
-                    <Input
-                      value={addForm.link}
-                      onChange={(e) => setAddForm({ ...addForm, link: e.target.value })}
-                      placeholder="https://..."
-                      autoComplete="off"
-                      className="border-2 border-gray-300 focus:border-blue-400 rounded-2xl h-12 font-medium"
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="text-sm font-bold text-gray-700 mb-2 block flex items-center gap-2">
-                      <span>📝</span>
-                      <span>Notes</span>
-                    </label>
-                    <Input
-                      value={addForm.notes}
-                      onChange={(e) => setAddForm({ ...addForm, notes: e.target.value })}
-                      placeholder="Near City Palace..."
-                      autoComplete="off"
-                      className="border-2 border-gray-300 focus:border-blue-400 rounded-2xl h-12 font-medium"
-                    />
-                  </div>
-                </div>
-                <div className="flex gap-3 mt-8">
-                  <Button type="submit" className="rounded-2xl flex-1 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold py-6 text-lg shadow-lg border-2 border-white/50">
-                    <Save className="mr-2 h-5 w-5" /> Save Hotel
-                  </Button>
-                  <Button type="button" onClick={() => setShowAddForm(false)} variant="outline" className="rounded-2xl bg-white hover:bg-red-50 border-2 border-red-300 hover:border-red-400 font-bold py-6 px-8 text-lg">
-                    <X className="mr-2 h-5 w-5" /> Cancel
-                  </Button>
-                </div>
-              </form>
-            </Card>
-          </motion.div>
+          <AddHotelForm
+            cities={hotelData.cities}
+            currency={hotelData.currency}
+            onSubmit={addHotel}
+            onCancel={() => setShowAddForm(false)}
+          />
         )}
       </AnimatePresence>
 
@@ -1199,7 +1255,7 @@ export default function Page() {
                     ) : (
                       // View Mode
                       <div className="flex items-start gap-6">
-                        {h.image && (
+                        {h.image && h.image.startsWith('http') && (
                           <div 
                             className="w-40 h-32 bg-cover bg-center rounded-2xl flex-shrink-0 border-2 border-gray-200 shadow-md"
                             style={{ backgroundImage: `url(${h.image})` }}
@@ -1230,6 +1286,7 @@ export default function Page() {
                         </div>
                         <div className="flex gap-2 flex-shrink-0">
                           <Button 
+                            type="button"
                             onClick={() => startEditing(h)}
                             variant="outline"
                             size="sm"
@@ -1238,6 +1295,7 @@ export default function Page() {
                             <Edit className="h-5 w-5" />
                           </Button>
                           <Button 
+                            type="button"
                             onClick={() => deleteHotel(c.id, h.id, h.name)}
                             variant="destructive"
                             size="sm"

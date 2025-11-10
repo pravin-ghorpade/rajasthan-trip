@@ -1,13 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sql, getAllData } from '@/db/client';
+import DATA_RAW from '@/data/rajasthan_data_with_images_20251110_024141.json';
 
 // GET - Fetch all hotels
 export async function GET() {
   try {
+    // Try database first
     const data = await getAllData();
     return NextResponse.json({ success: true, data });
   } catch (error) {
     console.error('Error fetching hotels:', error);
+    
+    // Fallback to JSON file if database not available (dev mode)
+    if (!process.env.POSTGRES_URL) {
+      console.log('⚠️ No database connection - using JSON file fallback');
+      return NextResponse.json({ success: true, data: DATA_RAW });
+    }
+    
     return NextResponse.json({ success: false, error: 'Failed to fetch hotels' }, { status: 500 });
   }
 }
