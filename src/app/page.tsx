@@ -9,41 +9,88 @@ import { Badge } from "@/components/ui/badge";
 import { ExternalLink, Heart, Star, Send, TrendingUp, Users, ArrowUpDown, Plus, Edit, Trash2, Save, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
+// ---------- constants ----------
+const VOTERS = [
+  'Pravin',
+  'Ranjeet',
+  'Bharat',
+  'Hiral',
+  'Pranjali',
+  'Pushkar',
+  'Sahil',
+  'Sanket',
+  'Shreya',
+  'Nikita'
+];
+
 // ---------- utilities ----------
 const formatPrice = (n: number | null, currency: string = '₹') => (typeof n === "number" ? `${currency}${n.toLocaleString()}` : "—");
 
+// Generate or retrieve device fingerprint
+const getDeviceId = () => {
+  if (typeof window === 'undefined') return '';
+  
+  let deviceId = localStorage.getItem('deviceId');
+  if (!deviceId) {
+    deviceId = `device_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    localStorage.setItem('deviceId', deviceId);
+  }
+  return deviceId;
+};
+
+const PREFERENCE_LABELS: Record<number, string> = {
+  1: "Weak",
+  2: "Mild",
+  3: "Moderate",
+  4: "Strong",
+  5: "Very Strong"
+};
+
 const StarRating = ({ value, onChange }: { value: number; onChange: (v: number)=>void }) => {
   const [hover, setHover] = useState(0);
+  const currentLabel = PREFERENCE_LABELS[hover || value];
+  
   return (
-    <div className="flex items-center gap-0.5 flex-shrink-0">
-      {[1,2,3,4,5].map(i=>(
-        <motion.button 
-          key={i} 
-          className="p-0.5 transition-all" 
-          aria-label={`rate ${i}`}
-          onMouseEnter={()=>setHover(i)} 
-          onMouseLeave={()=>setHover(0)} 
-          onClick={()=>onChange(i)}
-          whileHover={{ scale: 1.2 }}
-          whileTap={{ scale: 0.9 }}
-        >
-          <motion.div
-            animate={{
-              scale: i <= (hover || value) ? 1 : 0.9,
-              rotate: i <= (hover || value) ? [0, -10, 10, 0] : 0,
-            }}
-            transition={{ duration: 0.2 }}
+    <div className="flex flex-col items-end gap-1">
+      <div className="flex items-center gap-0.5 flex-shrink-0">
+        {[1,2,3,4,5].map(i=>(
+          <motion.button 
+            key={i} 
+            className="p-0.5 transition-all" 
+            aria-label={`preference ${i}`}
+            onMouseEnter={()=>setHover(i)} 
+            onMouseLeave={()=>setHover(0)} 
+            onClick={()=>onChange(i)}
+            whileHover={{ scale: 1.2 }}
+            whileTap={{ scale: 0.9 }}
           >
-            <Star 
-              className={`h-5 w-5 transition-colors ${
-                i <= (hover || value) 
-                  ? "fill-yellow-400 text-yellow-400" 
-                  : "text-gray-300"
-              }`} 
-            />
-          </motion.div>
-        </motion.button>
-      ))}
+            <motion.div
+              animate={{
+                scale: i <= (hover || value) ? 1 : 0.9,
+                rotate: i <= (hover || value) ? [0, -10, 10, 0] : 0,
+              }}
+              transition={{ duration: 0.2 }}
+            >
+              <Star 
+                className={`h-5 w-5 transition-colors ${
+                  i <= (hover || value) 
+                    ? "fill-yellow-400 text-yellow-400" 
+                    : "text-gray-300"
+                }`} 
+              />
+            </motion.div>
+          </motion.button>
+        ))}
+      </div>
+      {(hover > 0 || value > 0) && (
+        <motion.span 
+          initial={{ opacity: 0, y: -5 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-xs font-semibold text-gray-600"
+        >
+          {currentLabel}
+        </motion.span>
+      )}
     </div>
   );
 };
@@ -75,14 +122,22 @@ function useQueryParamScores() {
   return [scores, setScores] as const;
 }
 
-const HotelCard = ({ city, hotel, occupancy, score, setScore, setOccupancy, currency }:{
-  city:any; hotel:any; occupancy:number; score:number; 
-  setScore:(v:number)=>void; setOccupancy:(v:2|3)=>void; currency:string;
+const HotelCard = ({ city, hotel, hotelOccupancy, score, setScore, setHotelOccupancy, currency }:{
+  city:any; hotel:any; hotelOccupancy:Record<string, 2|3>; score:number; 
+  setScore:(v:number)=>void; setHotelOccupancy:(v:Record<string, 2|3>)=>void; currency:string;
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [showGooglePreview, setShowGooglePreview] = useState(false);
   const [imageError, setImageError] = useState(false);
   const hasRating = score > 0;
+  
+  // Get occupancy for this specific hotel, default to 2
+  const occupancy = hotelOccupancy[hotel.id] || 2;
+  
+  // Set occupancy for this specific hotel
+  const setOccupancy = (value: 2|3) => {
+    setHotelOccupancy({ ...hotelOccupancy, [hotel.id]: value });
+  };
 
   // Helper to format prices
   const fmt = (n: number | null) => formatPrice(n, currency);
@@ -134,7 +189,7 @@ const HotelCard = ({ city, hotel, occupancy, score, setScore, setOccupancy, curr
               className="absolute top-3 right-3 z-10"
             >
               <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 shadow-lg px-3 py-1.5 text-sm font-semibold">
-                ⭐ {score} Stars
+                {PREFERENCE_LABELS[score]}
               </Badge>
             </motion.div>
           )}
@@ -314,17 +369,9 @@ const HotelCard = ({ city, hotel, occupancy, score, setScore, setOccupancy, curr
           {/* Bottom Actions */}
           <div className="flex flex-col gap-4 mt-auto pt-3 border-t-2 border-gray-100">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-bold text-gray-700">⭐ Your Rating</span>
+              <span className="text-sm font-bold text-gray-700">💭 Your Preference</span>
               <StarRating value={score} onChange={setScore} />
             </div>
-            
-            {hotel.link && (
-              <a href={hotel.link} target="_blank" rel="noopener noreferrer" className="w-full">
-                <Button variant="outline" className="rounded-2xl w-full border-2 hover:bg-gradient-to-r hover:from-orange-50 hover:to-pink-50 hover:border-orange-300 font-semibold">
-                  View Details <ExternalLink className="ml-2 h-4 w-4" />
-                </Button>
-              </a>
-            )}
           </div>
         </CardContent>
       </Card>
@@ -489,7 +536,8 @@ AddHotelForm.displayName = 'AddHotelForm';
 export default function Page() {
   const [scores, setScores] = useQueryParamScores();
   const [name, setName] = useState("");
-  const [occupancy, setOccupancy] = useState<2|3>(2);
+  const [deviceId, setDeviceId] = useState("");
+  const [hotelOccupancy, setHotelOccupancy] = useState<Record<string, 2|3>>({});
   const [activeTab, setActiveTab] = useState<string>("hotels");
   const [realTimeVotes, setRealTimeVotes] = useState<any>({});
   const [isLoadingVotes, setIsLoadingVotes] = useState(false);
@@ -500,7 +548,7 @@ export default function Page() {
   // Admin state
   const [hotelData, setHotelData] = useState<any>({ 
     tripTitle: 'Rajasthan Trip — Dec 14–21, 2025',
-    ctaNote: 'Rate or rank stays per city.',
+    ctaNote: 'Select your preference for each hotel.',
     currency: '₹',
     cities: [],
     googleForm: { enabled: false }
@@ -573,14 +621,18 @@ export default function Page() {
           cityId,
           hotelId,
           rating,
-          occupancy,
+          occupancy: hotelOccupancy[hotelId] || 2,
+          deviceId,
         }),
       });
       const data = await response.json();
+      if (!data.success && data.message) {
+        throw new Error(data.message);
+      }
       return data.success;
     } catch (error) {
       console.error('Error submitting vote:', error);
-      return false;
+      throw error;
     }
   };
 
@@ -604,19 +656,27 @@ export default function Page() {
     }
 
     try {
-      const results = await Promise.all(
+      const results = await Promise.allSettled(
         rated.map(({ cityId, hotelId, rating }) => 
           submitVote(cityId, hotelId, rating)
         )
       );
 
-      if (results.every(r => r)) {
+      const successful = results.filter(r => r.status === 'fulfilled').length;
+      const failed = results.filter(r => r.status === 'rejected');
+
+      if (failed.length > 0) {
+        const errorMessage = failed[0].status === 'rejected' ? failed[0].reason.message : 'Unknown error';
+        if (errorMessage.includes('already voted')) {
+          alert(`❌ ${errorMessage}`);
+        } else {
+          alert(`⚠️ ${failed.length} rating(s) failed to submit. ${errorMessage}`);
+        }
+      } else if (successful === rated.length) {
         setSubmitSuccess(true);
         await fetchVotes();
         setTimeout(() => setSubmitSuccess(false), 3000);
         alert(`✅ Successfully submitted ${rated.length} ratings! Thank you ${name || 'for your feedback'}!`);
-      } else {
-        alert("Some ratings failed to submit. Please try again.");
       }
     } catch (error) {
       alert("Error submitting ratings. Please try again.");
@@ -776,11 +836,20 @@ export default function Page() {
     });
   };
 
-  // Load hotels on mount
+  // Load hotels and device ID on mount
   useEffect(() => {
     fetchHotels();
+    setDeviceId(getDeviceId());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Clear scores and occupancy when name changes
+  useEffect(() => {
+    if (name) {
+      setScores({});
+      setHotelOccupancy({});
+    }
+  }, [name, setScores]);
 
   // Load votes on mount and when switching to results tab
   useEffect(() => {
@@ -804,15 +873,30 @@ export default function Page() {
   // Use real-time votes data
   const resultsData = useMemo(() => {
     const results: any = {};
+    
+    // Weighted average calculation
+    // Formula: Weighted Score = (avgRating * numVotes) / (numVotes + C)
+    // where C is a confidence factor (using 3 as baseline - requires ~3 votes to be competitive)
+    const CONFIDENCE_FACTOR = 3;
+    
+    const calculateWeightedScore = (avgRating: number, numVotes: number) => {
+      if (numVotes === 0) return 0;
+      // Bayesian average: pulls low-vote items toward the mean
+      return (avgRating * numVotes) / (numVotes + CONFIDENCE_FACTOR);
+    };
+    
     hotelData.cities.forEach((c: any) => {
       results[c.id] = {};
       c.hotels.forEach((h: any) => {
         const voteData = realTimeVotes[c.id]?.[h.id];
         if (voteData) {
+          const avgRating = voteData.avgRating || 0;
+          const numVotes = voteData.count || 0;
           results[c.id][h.id] = {
-            avgRating: voteData.avgRating || 0,
-            numVotes: voteData.count || 0,
+            avgRating,
+            numVotes,
             votes: voteData.votes || [],
+            weightedScore: calculateWeightedScore(avgRating, numVotes),
           };
         } else {
           // Default empty state
@@ -820,6 +904,7 @@ export default function Page() {
             avgRating: 0,
             numVotes: 0,
             votes: [],
+            weightedScore: 0,
           };
         }
       });
@@ -830,12 +915,13 @@ export default function Page() {
   // Sort hotels by selected criteria
   const getSortedHotels = (hotels: any[], cityId: string) => {
     return [...hotels].sort((a, b) => {
-      const aData = resultsData[cityId]?.[a.id] || { avgRating: 0, numVotes: 0 };
-      const bData = resultsData[cityId]?.[b.id] || { avgRating: 0, numVotes: 0 };
+      const aData = resultsData[cityId]?.[a.id] || { avgRating: 0, numVotes: 0, weightedScore: 0 };
+      const bData = resultsData[cityId]?.[b.id] || { avgRating: 0, numVotes: 0, weightedScore: 0 };
 
       switch (sortBy) {
         case 'rating':
-          return (bData.avgRating || 0) - (aData.avgRating || 0);
+          // Use weighted score instead of simple average
+          return (bData.weightedScore || 0) - (aData.weightedScore || 0);
         case 'votes':
           return (bData.numVotes || 0) - (aData.numVotes || 0);
         case 'name':
@@ -943,8 +1029,33 @@ export default function Page() {
 
         {hotelData.cities.map((c: any) => {
           const sortedHotels = getSortedHotels(c.hotels, c.id);
+          const winner = sortedHotels[0];
+          const winnerData = resultsData[c.id]?.[winner?.id];
+          const hasWinner = winnerData && winnerData.numVotes > 0;
+          
           return (
             <TabsContent key={c.id} value={c.id} className="mt-10 md:mt-12">
+              {/* Winner Banner */}
+              {hasWinner && (
+                <motion.div
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-8 p-6 bg-gradient-to-r from-yellow-400 via-amber-400 to-orange-400 rounded-3xl border-4 border-yellow-300 shadow-2xl"
+                >
+                  <div className="flex items-center justify-center gap-4 flex-wrap">
+                    <span className="text-5xl">🏆</span>
+                    <div className="text-center">
+                      <div className="text-sm font-bold text-amber-900 uppercase tracking-wide">Winner for {c.name}</div>
+                      <div className="text-3xl font-black text-white mt-1">{winner.name}</div>
+                      <div className="text-sm font-bold text-amber-900 mt-2">
+                        {winnerData.avgRating.toFixed(1)}★ avg · {winnerData.numVotes} votes · Score: {winnerData.weightedScore.toFixed(2)}
+                      </div>
+                    </div>
+                    <span className="text-5xl">🏆</span>
+                  </div>
+                </motion.div>
+              )}
+              
               <AnimatePresence mode="wait">
                 <motion.div 
                   initial={{ opacity: 0, y: 20 }}
@@ -954,7 +1065,7 @@ export default function Page() {
                   className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 p-2"
                 >
                   {sortedHotels.map((h: any, index: number) => {
-                    const result = resultsData[c.id]?.[h.id] || { avgRating: 0, numVotes: 0, votes: [] };
+                    const result = resultsData[c.id]?.[h.id] || { avgRating: 0, numVotes: 0, votes: [], weightedScore: 0 };
                     const hasVotes = result.numVotes > 0;
                     
                     return (
@@ -978,8 +1089,12 @@ export default function Page() {
                                 animate={{ scale: 1, rotate: 0 }}
                                 transition={{ delay: 0.5 }}
                               >
-                                <Badge className="absolute top-3 right-3 bg-gradient-to-r from-yellow-400 to-amber-500 text-white border-2 border-white/50 shadow-xl px-4 py-2 text-sm font-black">
-                                  🏆 #{index + 1} Top Rated
+                                <Badge className={`absolute top-3 right-3 border-2 border-white/50 shadow-xl px-4 py-2 text-sm font-black ${
+                                  index === 0 
+                                    ? 'bg-gradient-to-r from-yellow-300 to-amber-400 text-amber-900 text-base'
+                                    : 'bg-gradient-to-r from-yellow-400 to-amber-500 text-white'
+                                }`}>
+                                  {index === 0 ? '👑 WINNER' : `🏆 #${index + 1}`}
                                 </Badge>
                               </motion.div>
                             )}
@@ -1007,6 +1122,9 @@ export default function Page() {
                                   </div>
                                   <div className="text-sm text-gray-600 mt-2 font-bold">
                                     {result.numVotes} {result.numVotes === 1 ? 'vote' : 'votes'}
+                                  </div>
+                                  <div className="text-xs text-purple-600 mt-1 font-semibold">
+                                    Weighted Score: {result.weightedScore.toFixed(2)}
                                   </div>
                                 </>
                               ) : (
@@ -1061,14 +1179,6 @@ export default function Page() {
                                 </div>
                               </div>
                             </div>
-
-                            {h.link && (
-                              <a href={h.link} target="_blank" rel="noopener noreferrer" className="w-full block">
-                                <Button className="rounded-2xl w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white border-2 border-white/50 font-bold shadow-lg hover:shadow-xl transition-all">
-                                  View Details <ExternalLink className="ml-2 h-4 w-4" />
-                                </Button>
-                              </a>
-                            )}
                           </CardContent>
                         </Card>
                       </motion.div>
@@ -1437,13 +1547,17 @@ export default function Page() {
                   <span>👤</span>
                   <span>Your Name *</span>
                 </label>
-                <Input 
-                  value={name} 
-                  onChange={(e)=>setName(e.target.value)} 
-                  placeholder="Enter your name" 
-                  className="border-2 border-gray-200 focus:border-orange-400 rounded-2xl h-12 text-base font-medium"
+                <select
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full p-3 border-2 border-gray-200 focus:border-orange-400 rounded-2xl h-12 text-base font-medium focus:outline-none bg-white"
                   required
-                />
+                >
+                  <option value="">Select your name</option>
+                  {VOTERS.map((voter) => (
+                    <option key={voter} value={voter}>{voter}</option>
+                  ))}
+                </select>
               </div>
             </motion.div>
 
@@ -1478,10 +1592,10 @@ export default function Page() {
                     <HotelCard 
                       city={c} 
                       hotel={h} 
-                      occupancy={occupancy}
+                      hotelOccupancy={hotelOccupancy}
                       score={getScore(c,h.id)} 
                       setScore={(v)=>setScore(c,h.id,v)}
-                      setOccupancy={setOccupancy}
+                      setHotelOccupancy={setHotelOccupancy}
                       currency={hotelData.currency}
                     />
                   </div>

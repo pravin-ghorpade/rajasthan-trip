@@ -66,9 +66,9 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, cityId, hotelId, rating, occupancy, notes } = body;
+    const { name, cityId, hotelId, rating, occupancy, notes, deviceId } = body;
 
-    if (!cityId || !hotelId || !rating) {
+    if (!cityId || !hotelId || !rating || !name) {
       return NextResponse.json(
         { success: false, error: 'Missing required fields' },
         { status: 400 }
@@ -87,16 +87,32 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Check for duplicate vote (same name + device + hotel)
+    const duplicateCheck = await sql`
+      SELECT id FROM votes 
+      WHERE voter_name = ${name} 
+        AND device_id = ${deviceId || null}
+        AND hotel_id = ${hotelId}
+    `;
+
+    if (duplicateCheck.rows.length > 0) {
+      return NextResponse.json(
+        { success: false, error: 'You have already voted for this hotel' },
+        { status: 400 }
+      );
+    }
+
     // Insert the vote
     const result = await sql`
-      INSERT INTO votes (hotel_id, city_id, voter_name, rating, occupancy, notes)
+      INSERT INTO votes (hotel_id, city_id, voter_name, rating, occupancy, notes, device_id)
       VALUES (
         ${hotelId},
         ${cityId},
-        ${name || 'Anonymous'},
+        ${name},
         ${Number(rating)},
         ${Number(occupancy)},
-        ${notes || null}
+        ${notes || null},
+        ${deviceId || null}
       )
       RETURNING *
     `;
