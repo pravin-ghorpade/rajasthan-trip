@@ -78,18 +78,22 @@ export async function PUT(request: NextRequest) {
     const body = await request.json();
     const { cityId, hotelId, updates } = body;
 
+    console.log('PUT request received:', { cityId, hotelId, updates });
+
     if (!cityId || !hotelId || !updates) {
       return NextResponse.json({ success: false, error: 'Missing required fields' }, { status: 400 });
     }
 
     // Check if city exists
     const cityCheck = await sql`SELECT id FROM cities WHERE id = ${cityId}`;
+    console.log('City check:', cityCheck.rows);
     if (cityCheck.rows.length === 0) {
       return NextResponse.json({ success: false, error: 'City not found' }, { status: 404 });
     }
 
     // Check if hotel exists
     const hotelCheck = await sql`SELECT id FROM hotels WHERE id = ${hotelId} AND city_id = ${cityId}`;
+    console.log('Hotel check:', hotelCheck.rows);
     if (hotelCheck.rows.length === 0) {
       return NextResponse.json({ success: false, error: 'Hotel not found' }, { status: 404 });
     }
@@ -112,6 +116,8 @@ export async function PUT(request: NextRequest) {
     const result = await sql`SELECT * FROM hotels WHERE id = ${hotelId}`;
     const updatedHotel = result.rows[0];
 
+    console.log('Hotel updated successfully:', updatedHotel);
+
     return NextResponse.json({ 
       success: true, 
       data: {
@@ -126,7 +132,11 @@ export async function PUT(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error updating hotel:', error);
-    return NextResponse.json({ success: false, error: 'Failed to update hotel' }, { status: 500 });
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Failed to update hotel', 
+      details: error instanceof Error ? error.message : 'Unknown error' 
+    }, { status: 500 });
   }
 }
 

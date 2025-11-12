@@ -533,6 +533,117 @@ const AddHotelForm = memo(({
 
 AddHotelForm.displayName = 'AddHotelForm';
 
+// Memoized Edit Hotel Form Component
+const EditHotelForm = memo(({
+  hotel,
+  currency,
+  onSubmit,
+  onCancel
+}: {
+  hotel: any;
+  currency: string;
+  onSubmit: (form: any) => void;
+  onCancel: () => void;
+}) => {
+  const [form, setForm] = useState({
+    name: hotel.name || '',
+    price2: hotel.price2?.toString() || '',
+    price3: hotel.price3?.toString() || '',
+    image: hotel.image || '',
+    link: hotel.link || '',
+    notes: hotel.notes || '',
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit(form);
+  };
+
+  return (
+    <div className="space-y-6">
+      <h4 className="font-black text-xl text-gray-900 flex items-center gap-2">
+        <span>✏️</span>
+        <span>Editing: {hotel.name}</span>
+      </h4>
+      <form onSubmit={handleSubmit} autoComplete="off">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div>
+            <label className="text-sm font-bold text-gray-700 mb-2 block">Hotel Name</label>
+            <Input
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              autoComplete="off"
+              className="border-2 border-gray-300 focus:border-blue-400 rounded-2xl h-12 font-medium"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-bold text-gray-700 mb-2 block">2 Person Price ({currency})</label>
+            <Input
+              type="number"
+              value={form.price2}
+              onChange={(e) => setForm({ ...form, price2: e.target.value })}
+              autoComplete="off"
+              className="border-2 border-gray-300 focus:border-blue-400 rounded-2xl h-12 font-medium"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-bold text-gray-700 mb-2 block">3 Person Price ({currency})</label>
+            <Input
+              type="number"
+              value={form.price3}
+              onChange={(e) => setForm({ ...form, price3: e.target.value })}
+              autoComplete="off"
+              className="border-2 border-gray-300 focus:border-blue-400 rounded-2xl h-12 font-medium"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-bold text-gray-700 mb-2 block">Image URL</label>
+            <Input
+              value={form.image}
+              onChange={(e) => setForm({ ...form, image: e.target.value })}
+              autoComplete="off"
+              className="border-2 border-gray-300 focus:border-blue-400 rounded-2xl h-12 font-medium"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-bold text-gray-700 mb-2 block">Booking Link</label>
+            <Input
+              value={form.link}
+              onChange={(e) => setForm({ ...form, link: e.target.value })}
+              autoComplete="off"
+              className="border-2 border-gray-300 focus:border-blue-400 rounded-2xl h-12 font-medium"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-bold text-gray-700 mb-2 block">Notes</label>
+            <Input
+              value={form.notes}
+              onChange={(e) => setForm({ ...form, notes: e.target.value })}
+              autoComplete="off"
+              className="border-2 border-gray-300 focus:border-blue-400 rounded-2xl h-12 font-medium"
+            />
+          </div>
+        </div>
+        <div className="flex gap-3 mt-6">
+          <Button type="submit" className="rounded-2xl flex-1 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold py-5 shadow-lg border-2 border-white/50">
+            <Save className="mr-2 h-5 w-5" /> Save Changes
+          </Button>
+          <Button 
+            type="button"
+            onClick={onCancel}
+            variant="outline" 
+            className="rounded-2xl bg-white hover:bg-red-50 border-2 border-red-300 hover:border-red-400 font-bold py-5 px-8"
+          >
+            <X className="mr-2 h-5 w-5" /> Cancel
+          </Button>
+        </div>
+      </form>
+    </div>
+  );
+});
+
+EditHotelForm.displayName = 'EditHotelForm';
+
 export default function Page() {
   const [scores, setScores] = useQueryParamScores();
   const [name, setName] = useState("");
@@ -767,8 +878,10 @@ export default function Page() {
     }
   };
 
-  const updateHotel = async (cityId: string, hotelId: string) => {
+  const updateHotel = async (cityId: string, hotelId: string, formData: any) => {
     try {
+      console.log('Updating hotel:', { cityId, hotelId, formData });
+      
       const response = await fetch('/api/hotels', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -776,28 +889,30 @@ export default function Page() {
           cityId,
           hotelId,
           updates: {
-            name: editForm.name,
-            price2: parseFloat(editForm.price2) || null,
-            price3: parseFloat(editForm.price3) || null,
-            image: editForm.image,
-            link: editForm.link,
-            notes: editForm.notes,
+            name: formData.name,
+            price2: parseFloat(formData.price2) || null,
+            price3: parseFloat(formData.price3) || null,
+            image: formData.image,
+            link: formData.link,
+            notes: formData.notes,
           },
         }),
       });
 
       const data = await response.json();
+      console.log('Update response:', data);
+      
       if (data.success) {
         alert('✅ Hotel updated successfully!');
         setEditingHotelId(null);
         setEditForm({});
         await fetchHotels();
       } else {
-        alert('Failed to update hotel: ' + data.error);
+        alert('Failed to update hotel: ' + (data.error || 'Unknown error') + (data.details ? '\n' + data.details : ''));
       }
     } catch (error) {
       console.error('Error updating hotel:', error);
-      alert('Error updating hotel');
+      alert('Error updating hotel: ' + (error instanceof Error ? error.message : 'Unknown error'));
     }
   };
 
@@ -1011,7 +1126,7 @@ export default function Page() {
 
       <Tabs value={cityId} onValueChange={setCityId} className="w-full">
         <div className="w-full bg-gradient-to-br from-purple-100 via-pink-100 to-orange-100 p-6 rounded-3xl border-2 border-purple-200 shadow-xl backdrop-blur-lg">
-          <TabsList className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 w-full h-auto bg-transparent">
+          <TabsList className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full h-auto bg-transparent">
             {hotelData.cities.map((c: any) => (
               <TabsTrigger
                 key={c.id}
@@ -1250,7 +1365,7 @@ export default function Page() {
       {/* Hotel List by City */}
       <Tabs value={cityId} onValueChange={setCityId} className="w-full">
         <div className="w-full bg-gradient-to-br from-blue-100 via-cyan-100 to-teal-100 p-6 rounded-3xl border-2 border-blue-200 shadow-xl backdrop-blur-lg">
-          <TabsList className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 w-full h-auto bg-transparent">
+          <TabsList className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full h-auto bg-transparent">
             {hotelData.cities.map((c: any) => (
               <TabsTrigger
                 key={c.id}
@@ -1280,88 +1395,15 @@ export default function Page() {
                   <Card className="p-6 shadow-lg hover:shadow-2xl transition-all rounded-3xl border-2 border-gray-200 hover:border-blue-300 bg-white">
                     {editingHotelId === h.id ? (
                       // Edit Mode
-                      <div className="space-y-6">
-                        <h4 className="font-black text-xl text-gray-900 flex items-center gap-2">
-                          <span>✏️</span>
-                          <span>Editing: {h.name}</span>
-                        </h4>
-                        <form onSubmit={(e) => { e.preventDefault(); updateHotel(c.id, h.id); }} autoComplete="off">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                            <div>
-                              <label className="text-sm font-bold text-gray-700 mb-2 block">Hotel Name</label>
-                              <Input
-                                value={editForm.name}
-                                onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                                autoComplete="off"
-                                className="border-2 border-gray-300 focus:border-blue-400 rounded-2xl h-12 font-medium"
-                              />
-                            </div>
-                            <div>
-                              <label className="text-sm font-bold text-gray-700 mb-2 block">2 Person Price ({hotelData.currency})</label>
-                              <Input
-                                type="number"
-                                value={editForm.price2}
-                                onChange={(e) => setEditForm({ ...editForm, price2: e.target.value })}
-                                autoComplete="off"
-                                className="border-2 border-gray-300 focus:border-blue-400 rounded-2xl h-12 font-medium"
-                              />
-                            </div>
-                            <div>
-                              <label className="text-sm font-bold text-gray-700 mb-2 block">3 Person Price ({hotelData.currency})</label>
-                              <Input
-                                type="number"
-                                value={editForm.price3}
-                                onChange={(e) => setEditForm({ ...editForm, price3: e.target.value })}
-                                autoComplete="off"
-                                className="border-2 border-gray-300 focus:border-blue-400 rounded-2xl h-12 font-medium"
-                              />
-                            </div>
-                            <div>
-                              <label className="text-sm font-bold text-gray-700 mb-2 block">Image URL</label>
-                              <Input
-                                value={editForm.image}
-                                onChange={(e) => setEditForm({ ...editForm, image: e.target.value })}
-                                autoComplete="off"
-                                className="border-2 border-gray-300 focus:border-blue-400 rounded-2xl h-12 font-medium"
-                              />
-                            </div>
-                            <div>
-                              <label className="text-sm font-bold text-gray-700 mb-2 block">Booking Link</label>
-                              <Input
-                                value={editForm.link}
-                                onChange={(e) => setEditForm({ ...editForm, link: e.target.value })}
-                                autoComplete="off"
-                                className="border-2 border-gray-300 focus:border-blue-400 rounded-2xl h-12 font-medium"
-                              />
-                            </div>
-                            <div>
-                              <label className="text-sm font-bold text-gray-700 mb-2 block">Notes</label>
-                              <Input
-                                value={editForm.notes}
-                                onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
-                                autoComplete="off"
-                                className="border-2 border-gray-300 focus:border-blue-400 rounded-2xl h-12 font-medium"
-                              />
-                            </div>
-                          </div>
-                          <div className="flex gap-3 mt-6">
-                            <Button type="submit" className="rounded-2xl flex-1 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold py-5 shadow-lg border-2 border-white/50">
-                              <Save className="mr-2 h-5 w-5" /> Save Changes
-                            </Button>
-                            <Button 
-                              type="button"
-                              onClick={() => {
-                                setEditingHotelId(null);
-                                setEditForm({});
-                              }} 
-                              variant="outline" 
-                              className="rounded-2xl bg-white hover:bg-red-50 border-2 border-red-300 hover:border-red-400 font-bold py-5 px-8"
-                            >
-                              <X className="mr-2 h-5 w-5" /> Cancel
-                            </Button>
-                          </div>
-                        </form>
-                      </div>
+                      <EditHotelForm
+                        hotel={h}
+                        currency={hotelData.currency}
+                        onSubmit={(formData) => updateHotel(c.id, h.id, formData)}
+                        onCancel={() => {
+                          setEditingHotelId(null);
+                          setEditForm({});
+                        }}
+                      />
                     ) : (
                       // View Mode
                       <div className="flex items-start gap-6">
@@ -1563,7 +1605,7 @@ export default function Page() {
 
             <Tabs value={cityId} onValueChange={setCityId} className="w-full">
           <div className="w-full bg-gradient-to-br from-orange-100 via-pink-100 to-purple-100 p-6 rounded-3xl border-2 border-orange-200 shadow-xl backdrop-blur-lg">
-            <TabsList className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 w-full h-auto bg-transparent">
+            <TabsList className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full h-auto bg-transparent">
               {hotelData.cities.map((c:any)=>(
                 <TabsTrigger 
                   key={c.id} 
