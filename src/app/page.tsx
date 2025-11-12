@@ -697,7 +697,10 @@ export default function Page() {
   const fetchVotes = useCallback(async () => {
     setIsLoadingVotes(true);
     try {
-      const response = await fetch('/api/votes');
+      // Add timestamp to prevent caching
+      const response = await fetch(`/api/votes?t=${Date.now()}`, {
+        cache: 'no-store'
+      });
       const data = await response.json();
       if (data.success) {
         setRealTimeVotes(data.data);
@@ -797,6 +800,7 @@ export default function Page() {
         // Clear local state
         setScores({});
         setHotelOccupancy({});
+        // Force refresh votes data immediately
         await fetchVotes();
         alert(`✅ Successfully cleared all your selections!`);
       } else {

@@ -45,7 +45,16 @@ export async function GET(request: NextRequest) {
       selectionsStore[cityId][hotelId].count += 1;
     }
 
-    return NextResponse.json({ success: true, data: selectionsStore });
+    return NextResponse.json(
+      { success: true, data: selectionsStore },
+      {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+        }
+      }
+    );
   } catch (error) {
     console.error('Error fetching selections:', error);
     return NextResponse.json({ success: false, error: 'Failed to fetch selections' }, { status: 500 });
