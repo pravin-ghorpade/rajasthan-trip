@@ -3,72 +3,61 @@ import { sql } from '@/db/client';
 
 export async function GET(request: NextRequest) {
   try {
-    // Fetch all votes from database
+    // Fetch all selections from database
     const result = await sql`
       SELECT 
         v.id,
         v.hotel_id,
         v.city_id,
         v.voter_name as name,
-        v.rating,
         v.occupancy,
+        v.is_selected,
         v.notes,
         v.created_at as timestamp
       FROM votes v
+      WHERE v.is_selected = true
       ORDER BY v.created_at DESC
     `;
 
     // Transform to the format expected by the frontend
-    const votesStore: any = {};
+    const selectionsStore: any = {};
     
-    for (const vote of result.rows) {
-      const cityId = vote.city_id;
-      const hotelId = vote.hotel_id;
+    for (const selection of result.rows) {
+      const cityId = selection.city_id;
+      const hotelId = selection.hotel_id;
 
-      if (!votesStore[cityId]) {
-        votesStore[cityId] = {};
+      if (!selectionsStore[cityId]) {
+        selectionsStore[cityId] = {};
       }
-      if (!votesStore[cityId][hotelId]) {
-        votesStore[cityId][hotelId] = { 
-          votes: [], 
-          totalRating: 0, 
-          count: 0,
-          avgRating: 0
+      if (!selectionsStore[cityId][hotelId]) {
+        selectionsStore[cityId][hotelId] = { 
+          selections: [], 
+          count: 0
         };
       }
 
-      votesStore[cityId][hotelId].votes.push({
-        name: vote.name,
-        rating: vote.rating,
-        occupancy: vote.occupancy,
-        timestamp: vote.timestamp,
-        notes: vote.notes,
+      selectionsStore[cityId][hotelId].selections.push({
+        name: selection.name,
+        occupancy: selection.occupancy,
+        timestamp: selection.timestamp,
+        notes: selection.notes,
       });
-      votesStore[cityId][hotelId].totalRating += vote.rating;
-      votesStore[cityId][hotelId].count += 1;
+      selectionsStore[cityId][hotelId].count += 1;
     }
 
-    // Calculate averages
-    for (const cityId in votesStore) {
-      for (const hotelId in votesStore[cityId]) {
-        const hotel = votesStore[cityId][hotelId];
-        hotel.avgRating = hotel.totalRating / hotel.count;
-      }
-    }
-
-    return NextResponse.json({ success: true, data: votesStore });
+    return NextResponse.json({ success: true, data: selectionsStore });
   } catch (error) {
-    console.error('Error fetching votes:', error);
-    return NextResponse.json({ success: false, error: 'Failed to fetch votes' }, { status: 500 });
+    console.error('Error fetching selections:', error);
+    return NextResponse.json({ success: false, error: 'Failed to fetch selections' }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, cityId, hotelId, rating, occupancy, notes, deviceId } = body;
+    const { name, cityId, hotelId, occupancy, notes, deviceId } = body;
 
-    if (!cityId || !hotelId || !rating || !name) {
+    if (!cityId || !hotelId || !name || !occupancy) {
       return NextResponse.json(
         { success: false, error: 'Missing required fields' },
         { status: 400 }
@@ -87,50 +76,71 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check for duplicate vote (same name + device + hotel)
-    const duplicateCheck = await sql`
-      SELECT id FROM votes 
+    // Check if user already has a selection for this city (only one hotel per city allowed)
+    const existingSelection = await sql`
+      SELECT id, hotel_id FROM votes 
       WHERE voter_name = ${name} 
         AND device_id = ${deviceId || null}
-        AND hotel_id = ${hotelId}
+        AND city_id = ${cityId}
+        AND is_selected = true
     `;
 
-    if (duplicateCheck.rows.length > 0) {
-      return NextResponse.json(
-        { success: false, error: 'You have already voted for this hotel' },
-        { status: 400 }
-      );
+    if (existingSelection.rows.length > 0) {
+      // Update existing selection to the new hotel
+      const result = await sql`
+        UPDATE votes
+        SET hotel_id = ${hotelId},
+            occupancy = ${Number(occupancy)},
+            notes = ${notes || null},
+            created_at = NOW()
+        WHERE voter_name = ${name}
+          AND device_id = ${deviceId || null}
+          AND city_id = ${cityId}
+          AND is_selected = true
+        RETURNING *
+      `;
+
+      const selection = result.rows[0];
+
+      return NextResponse.json({ 
+        success: true, 
+        data: {
+          name: selection.voter_name,
+          occupancy: selection.occupancy,
+          timestamp: selection.created_at,
+          notes: selection.notes,
+        }
+      });
+    } else {
+      // Insert new selection
+      const result = await sql`
+        INSERT INTO votes (hotel_id, city_id, voter_name, is_selected, occupancy, notes, device_id)
+        VALUES (
+          ${hotelId},
+          ${cityId},
+          ${name},
+          true,
+          ${Number(occupancy)},
+          ${notes || null},
+          ${deviceId || null}
+        )
+        RETURNING *
+      `;
+
+      const selection = result.rows[0];
+
+      return NextResponse.json({ 
+        success: true, 
+        data: {
+          name: selection.voter_name,
+          occupancy: selection.occupancy,
+          timestamp: selection.created_at,
+          notes: selection.notes,
+        }
+      });
     }
-
-    // Insert the vote
-    const result = await sql`
-      INSERT INTO votes (hotel_id, city_id, voter_name, rating, occupancy, notes, device_id)
-      VALUES (
-        ${hotelId},
-        ${cityId},
-        ${name},
-        ${Number(rating)},
-        ${Number(occupancy)},
-        ${notes || null},
-        ${deviceId || null}
-      )
-      RETURNING *
-    `;
-
-    const vote = result.rows[0];
-
-    return NextResponse.json({ 
-      success: true, 
-      data: {
-        name: vote.voter_name,
-        rating: vote.rating,
-        occupancy: vote.occupancy,
-        timestamp: vote.created_at,
-        notes: vote.notes,
-      }
-    });
   } catch (error) {
-    console.error('Error submitting vote:', error);
-    return NextResponse.json({ success: false, error: 'Failed to submit vote' }, { status: 500 });
+    console.error('Error submitting selection:', error);
+    return NextResponse.json({ success: false, error: 'Failed to submit selection' }, { status: 500 });
   }
 }

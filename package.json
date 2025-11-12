@@ -12,7 +12,8 @@
     "db:init": "tsx src/db/init.ts",
     "db:seed": "tsx src/db/seed.ts",
     "db:migrate": "tsx src/db/migrate.ts",
-    "db:reset": "tsx src/db/reset.ts"
+    "db:reset": "tsx src/db/reset.ts",
+    "db:migrate-selections": "tsx src/db/migrate-to-selections.ts"
   },
   "dependencies": {
     "@fontsource/inter": "^5.2.8",
@@ -25,6 +26,7 @@
     "framer-motion": "^12.23.24",
     "lucide-react": "^0.553.0",
     "next": "^14.2.33",
+    "postgres": "^3.4.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "tailwind-merge": "^3.4.0"
