@@ -13,7 +13,8 @@
     "db:seed": "tsx src/db/seed.ts",
     "db:migrate": "tsx src/db/migrate.ts",
     "db:reset": "tsx src/db/reset.ts",
-    "db:migrate-selections": "tsx src/db/migrate-to-selections.ts"
+    "db:migrate-selections": "tsx src/db/migrate-to-selections.ts",
+    "db:rename-cities": "tsx src/db/rename-cities.ts"
   },
   "dependencies": {
     "@fontsource/inter": "^5.2.8",
