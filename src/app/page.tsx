@@ -311,6 +311,28 @@ const HotelCard = ({ city, hotel, hotelOccupancy, score, setScore, setHotelOccup
 
           {/* Bottom Actions - Select Hotel */}
           <div className="flex flex-col gap-4 mt-auto pt-3 border-t-2 border-gray-100">
+            {/* Booking Link */}
+            {hotel.link && (
+              <div className="space-y-2">
+                <div className="text-sm font-bold text-gray-700 flex items-center gap-2">
+                  <span>🔗</span>
+                  <span>Booking Link</span>
+                </div>
+                <a
+                  href={hotel.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block"
+                >
+                  <Button className="w-full h-12 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-bold shadow-lg hover:shadow-xl transition-all">
+                    <span className="mr-2">🌐</span>
+                    View Booking Options
+                    <ExternalLink className="ml-2 h-4 w-4" />
+                  </Button>
+                </a>
+              </div>
+            )}
+
             <Button
               onClick={() => {
                 // Toggle selection - if already selected, deselect; otherwise select this one
