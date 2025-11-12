@@ -1125,15 +1125,15 @@ export default function Page() {
       </motion.div>
 
       <Tabs value={cityId} onValueChange={setCityId} className="w-full">
-        <div className="w-full bg-gradient-to-br from-purple-100 via-pink-100 to-orange-100 p-6 rounded-3xl border-2 border-purple-200 shadow-xl backdrop-blur-lg">
-          <TabsList className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full h-auto bg-transparent">
+        <div className="w-full bg-gradient-to-br from-purple-100 via-pink-100 to-orange-100 p-4 sm:p-6 rounded-3xl border-2 border-purple-200 shadow-xl backdrop-blur-lg">
+          <TabsList className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-3 w-full h-auto bg-transparent">
             {hotelData.cities.map((c: any) => (
               <TabsTrigger
                 key={c.id}
                 value={c.id}
-                className="rounded-2xl px-6 py-4 h-auto flex flex-col items-center justify-center gap-2 bg-white/50 data-[state=active]:bg-gradient-to-br data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white data-[state=active]:shadow-2xl data-[state=active]:scale-105 transition-all hover:scale-102 border-2 border-transparent data-[state=active]:border-white/30"
+                className="rounded-2xl px-4 py-3 sm:px-6 sm:py-4 h-auto flex flex-col items-center justify-center gap-2 bg-white/50 data-[state=active]:bg-gradient-to-br data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white data-[state=active]:shadow-2xl data-[state=active]:scale-105 transition-all hover:scale-102 border-2 border-transparent data-[state=active]:border-white/30"
               >
-                <span className="font-black text-lg text-center">{c.name}</span>
+                <span className="font-black text-base sm:text-lg text-center">{c.name}</span>
                 <span className="text-xs font-bold opacity-90 text-center whitespace-nowrap">
                   📅 {c.dates}
                 </span>
@@ -1364,17 +1364,20 @@ export default function Page() {
 
       {/* Hotel List by City */}
       <Tabs value={cityId} onValueChange={setCityId} className="w-full">
-        <div className="w-full bg-gradient-to-br from-blue-100 via-cyan-100 to-teal-100 p-6 rounded-3xl border-2 border-blue-200 shadow-xl backdrop-blur-lg">
-          <TabsList className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full h-auto bg-transparent">
+        <div className="w-full bg-gradient-to-br from-blue-100 via-cyan-100 to-teal-100 p-4 sm:p-6 rounded-3xl border-2 border-blue-200 shadow-xl backdrop-blur-lg">
+          <TabsList className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-3 w-full h-auto bg-transparent">
             {hotelData.cities.map((c: any) => (
               <TabsTrigger
                 key={c.id}
                 value={c.id}
-                className="rounded-2xl px-6 py-4 h-auto flex flex-col items-center justify-center gap-2 bg-white/50 data-[state=active]:bg-gradient-to-br data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white data-[state=active]:shadow-2xl data-[state=active]:scale-105 transition-all hover:scale-102 border-2 border-transparent data-[state=active]:border-white/30"
+                className="rounded-2xl px-4 py-3 sm:px-6 sm:py-4 h-auto flex flex-col items-center justify-center gap-1 bg-white/50 data-[state=active]:bg-gradient-to-br data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white data-[state=active]:shadow-2xl data-[state=active]:scale-105 transition-all hover:scale-102 border-2 border-transparent data-[state=active]:border-white/30"
               >
-                <span className="font-black text-lg text-center">{c.name}</span>
-                <span className="text-xs font-bold opacity-90 text-center">
-                  {c.hotels.length} hotels
+                <span className="font-black text-base sm:text-lg text-center">{c.name}</span>
+                <span className="text-xs font-bold opacity-90 text-center whitespace-nowrap">
+                  📅 {c.dates}
+                </span>
+                <span className="text-xs font-semibold opacity-75 text-center">
+                  {c.hotels.length} {c.hotels.length === 1 ? 'hotel' : 'hotels'}
                 </span>
               </TabsTrigger>
             ))}
@@ -1382,7 +1385,7 @@ export default function Page() {
         </div>
 
         {hotelData.cities.map((c: any) => (
-          <TabsContent key={c.id} value={c.id} className="mt-10">
+          <TabsContent key={c.id} value={c.id} className="mt-6 sm:mt-10">
             <div className="space-y-5">
               {c.hotels.map((h: any) => (
                 <motion.div
@@ -1392,7 +1395,7 @@ export default function Page() {
                   whileHover={{ scale: 1.02 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <Card className="p-6 shadow-lg hover:shadow-2xl transition-all rounded-3xl border-2 border-gray-200 hover:border-blue-300 bg-white">
+                  <Card className="p-4 sm:p-6 shadow-lg hover:shadow-2xl transition-all rounded-3xl border-2 border-gray-200 hover:border-blue-300 bg-white">
                     {editingHotelId === h.id ? (
                       // Edit Mode
                       <EditHotelForm
@@ -1406,16 +1409,16 @@ export default function Page() {
                       />
                     ) : (
                       // View Mode
-                      <div className="flex items-start gap-6">
+                      <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
                         {h.image && h.image.startsWith('http') && (
                           <div 
-                            className="w-40 h-32 bg-cover bg-center rounded-2xl flex-shrink-0 border-2 border-gray-200 shadow-md"
+                            className="w-full sm:w-40 h-40 sm:h-32 bg-cover bg-center rounded-2xl flex-shrink-0 border-2 border-gray-200 shadow-md"
                             style={{ backgroundImage: `url(${h.image})` }}
                           />
                         )}
-                        <div className="flex-grow space-y-3">
-                          <h4 className="font-black text-xl text-gray-900">{h.name}</h4>
-                          <div className="flex gap-6 text-sm">
+                        <div className="flex-grow space-y-3 w-full">
+                          <h4 className="font-black text-lg sm:text-xl text-gray-900">{h.name}</h4>
+                          <div className="flex flex-col sm:flex-row gap-3 sm:gap-6 text-sm">
                             <div className="bg-orange-100 px-4 py-2 rounded-xl border-2 border-orange-200">
                               <span className="font-bold text-orange-900">2p: {fmt(h.price2)}</span>
                               <span className="text-orange-700 ml-2">({fmt(h.price2 / 2)} pp)</span>
@@ -1436,13 +1439,13 @@ export default function Page() {
                             </a>
                           )}
                         </div>
-                        <div className="flex gap-2 flex-shrink-0">
+                        <div className="flex sm:flex-col gap-2 w-full sm:w-auto flex-shrink-0">
                           <Button 
                             type="button"
                             onClick={() => startEditing(h)}
                             variant="outline"
                             size="sm"
-                            className="rounded-2xl bg-blue-50 hover:bg-blue-100 border-2 border-blue-300 hover:border-blue-400 font-bold px-4 py-5"
+                            className="flex-1 sm:flex-none rounded-2xl bg-blue-50 hover:bg-blue-100 border-2 border-blue-300 hover:border-blue-400 font-bold px-4 py-5"
                           >
                             <Edit className="h-5 w-5" />
                           </Button>
@@ -1451,7 +1454,7 @@ export default function Page() {
                             onClick={() => deleteHotel(c.id, h.id, h.name)}
                             variant="destructive"
                             size="sm"
-                            className="rounded-2xl bg-red-500 hover:bg-red-600 border-2 border-red-300 font-bold px-4 py-5"
+                            className="flex-1 sm:flex-none rounded-2xl bg-red-500 hover:bg-red-600 border-2 border-red-300 font-bold px-4 py-5"
                           >
                             <Trash2 className="h-5 w-5" />
                           </Button>
@@ -1520,12 +1523,12 @@ export default function Page() {
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:100px_100px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
       </div>
       
-      <div className="max-w-7xl mx-auto p-4 md:p-8 lg:p-12 relative z-10">
+      <div className="max-w-7xl mx-auto p-3 sm:p-4 md:p-8 lg:p-12 relative z-10">
         {/* Enhanced Header */}
         <motion.div 
           initial={{opacity:0,y:-20, scale: 0.9}} 
           animate={{opacity:1,y:0, scale: 1}} 
-          className="mb-10 text-center"
+          className="mb-6 sm:mb-10 text-center"
           transition={{ duration: 0.5, ease: "easeOut" }}
         >
           <div className="relative inline-block">
@@ -1533,7 +1536,7 @@ export default function Page() {
             <div className="absolute -inset-4 bg-gradient-to-r from-orange-400 via-pink-400 to-purple-400 rounded-3xl blur-2xl opacity-20 animate-pulse" />
             
             <motion.div 
-              className="relative text-4xl md:text-5xl lg:text-6xl font-black bg-gradient-to-r from-orange-600 via-pink-600 to-purple-600 bg-clip-text text-transparent py-2"
+              className="relative text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black bg-gradient-to-r from-orange-600 via-pink-600 to-purple-600 bg-clip-text text-transparent py-2"
               animate={{ 
                 backgroundPosition: ['0% 50%', '100% 50%', '0% 50%']
               }}
@@ -1604,15 +1607,15 @@ export default function Page() {
             </motion.div>
 
             <Tabs value={cityId} onValueChange={setCityId} className="w-full">
-          <div className="w-full bg-gradient-to-br from-orange-100 via-pink-100 to-purple-100 p-6 rounded-3xl border-2 border-orange-200 shadow-xl backdrop-blur-lg">
-            <TabsList className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full h-auto bg-transparent">
+          <div className="w-full bg-gradient-to-br from-orange-100 via-pink-100 to-purple-100 p-4 sm:p-6 rounded-3xl border-2 border-orange-200 shadow-xl backdrop-blur-lg">
+            <TabsList className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-3 w-full h-auto bg-transparent">
               {hotelData.cities.map((c:any)=>(
                 <TabsTrigger 
                   key={c.id} 
                   value={c.id} 
-                  className="rounded-2xl px-6 py-4 h-auto flex flex-col items-center justify-center gap-2 bg-white/50 data-[state=active]:bg-gradient-to-br data-[state=active]:from-orange-500 data-[state=active]:to-pink-500 data-[state=active]:text-white data-[state=active]:shadow-2xl data-[state=active]:scale-105 transition-all hover:scale-102 border-2 border-transparent data-[state=active]:border-white/30"
+                  className="rounded-2xl px-4 py-3 sm:px-6 sm:py-4 h-auto flex flex-col items-center justify-center gap-2 bg-white/50 data-[state=active]:bg-gradient-to-br data-[state=active]:from-orange-500 data-[state=active]:to-pink-500 data-[state=active]:text-white data-[state=active]:shadow-2xl data-[state=active]:scale-105 transition-all hover:scale-102 border-2 border-transparent data-[state=active]:border-white/30"
                 >
-                  <span className="font-black text-lg text-center">{c.name}</span>
+                  <span className="font-black text-base sm:text-lg text-center">{c.name}</span>
                   <span className="text-xs font-bold opacity-90 text-center whitespace-nowrap">
                     📅 {c.dates}
                   </span>
