@@ -14,12 +14,22 @@ export async function POST(request: NextRequest) {
     }
 
     // Delete all selections for this user (by name and device ID)
-    const result = await sql`
-      DELETE FROM votes 
-      WHERE voter_name = ${name} 
-        AND device_id = ${deviceId || null}
-        AND is_selected = true
-    `;
+    let result;
+    if (deviceId) {
+      result = await sql`
+        DELETE FROM votes 
+        WHERE voter_name = ${name} 
+          AND device_id = ${deviceId}
+          AND is_selected = true
+      `;
+    } else {
+      result = await sql`
+        DELETE FROM votes 
+        WHERE voter_name = ${name} 
+          AND device_id IS NULL
+          AND is_selected = true
+      `;
+    }
 
     return NextResponse.json({ 
       success: true, 
